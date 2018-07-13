@@ -24,6 +24,21 @@
 
 ;;; Code:
 
+(defvar code-stats-token nil)
+
+(defvar-local code-stats-xp 0
+  "Experience point for the current buffer.")
+
+(defun code-stats-after-change (_beg _end _len)
+  (setq code-stats-xp (1+ code-stats-xp)))
+
+(define-minor-mode code-stats-mode
+  "Code Stats Minor Mode."
+  :init-value nil
+  :lighter " Code::Stats"
+  (if code-stats-mode
+      (add-hook 'after-change-functions #'code-stats-after-change :append :local)
+    (remove-hook 'after-change-functions #'code-stats-after-change :local)))
 
 (provide 'code-stats)
 ;;; code-stats.el ends here
