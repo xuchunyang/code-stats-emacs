@@ -3,8 +3,10 @@
 ;; Copyright (C) 2018  Xu Chunyang
 
 ;; Author: Xu Chunyang <mail@xuchunyang.me>
+;; Homepage: https://github.com/xuchunyang/code-stats-emacs
 ;; Package-Requires: ((emacs "25") (request "0.3.0"))
 ;; Created: 2018-07-13T13:29:18+08:00
+;; Version: 0
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -21,12 +23,15 @@
 
 ;;; Commentary:
 
+;; Code::Stats plugin for Emacs
 ;;
+;; See https://github.com/xuchunyang/code-stats-emacs for more info
 
 ;;; Code:
 
 (require 'cl-lib)
 (require 'request)
+(require 'json)
 
 (defvar code-stats-token nil)
 
