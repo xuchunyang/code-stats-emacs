@@ -49,7 +49,7 @@
   (let (xps)
     (dolist (buf (buffer-list))
       (with-current-buffer buf
-        (when code-stats-mode
+        (when (and code-stats-mode (> code-stats-xp 0))
           (if (assoc mode-name xps)
               (cl-incf (cdr (assoc mode-name xps)) code-stats-xp)
             (push (cons mode-name code-stats-xp) xps)))))
@@ -61,30 +61,34 @@
       (when code-stats-mode
         (setq code-stats-xp 0)))))
 
-(defun code-stats-build-pulse (xps)
-  `((coded_at . ,(format-time-string "%FT%T%:z"))
-    (xps . [,@(cl-loop for (language . xp) in xps
-                       collect `((language . ,language)
-                                 (xp . ,xp)))])))
+(defun code-stats-build-pulse ()
+  (let ((xps (code-stats-collect-xps)))
+    (when xps
+      `((coded_at . ,(format-time-string "%FT%T%:z"))
+        (xps . [,@(cl-loop for (language . xp) in xps
+                           collect `((language . ,language)
+                                     (xp . ,xp)))])))))
 
 (defun code-stats-send-pulse ()
   (interactive)
-  (request "https://codestats.net/api/my/pulses"
-           :type "POST"
-           :headers `(("X-API-Token"  . ,code-stats-token)
-                      ("User-Agent"   . "code-stats-emacs")
-                      ("Content-Type" . "application/json"))
-           :data (json-encode (code-stats-build-pulse (code-stats-collect-xps)))
-           :parser #'json-read
-           :error (cl-function
-                   (lambda (&key data error-thrown &allow-other-keys)
-                     (message "Got error: %S %S"
-                              error-thrown
-                              (cdr (assq 'error data)))))
-           :success (cl-function
-                     (lambda (&key data &allow-other-keys)
-                       (message "%s" (cdr (assq 'ok data)))
-                       (code-stats-reset-xps)))))
+  (let ((pulse (code-stats-build-pulse)))
+    (when pulse
+      (request "https://codestats.net/api/my/pulses"
+               :type "POST"
+               :headers `(("X-API-Token"  . ,code-stats-token)
+                          ("User-Agent"   . "code-stats-emacs")
+                          ("Content-Type" . "application/json"))
+               :data (json-encode pulse)
+               :parser #'json-read
+               :error (cl-function
+                       (lambda (&key data error-thrown &allow-other-keys)
+                         (message "Got error: %S %S"
+                                  error-thrown
+                                  (cdr (assq 'error data)))))
+               :success (cl-function
+                         (lambda (&key data &allow-other-keys)
+                           (message "%s" (cdr (assq 'ok data)))
+                           (code-stats-reset-xps)))))))
 
 (provide 'code-stats)
 ;;; code-stats.el ends here
