@@ -69,8 +69,7 @@
                            collect `((language . ,language)
                                      (xp . ,xp)))])))))
 
-(defun code-stats-send-pulse ()
-  (interactive)
+(defun code-stats-sync ()
   (let ((pulse (code-stats-build-pulse)))
     (when pulse
       (request "https://codestats.net/api/my/pulses"
@@ -82,7 +81,7 @@
                :parser #'json-read
                :error (cl-function
                        (lambda (&key data error-thrown &allow-other-keys)
-                         (message "Got error: %S %S"
+                         (message "[code-stats] Got error: %S - %S"
                                   error-thrown
                                   (cdr (assq 'error data)))))
                :success (cl-function
