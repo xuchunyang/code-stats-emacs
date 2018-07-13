@@ -77,12 +77,14 @@
            :data (json-encode (code-stats-build-pulse (code-stats-collect-xps)))
            :parser #'json-read
            :error (cl-function
-                   (lambda (&rest args &key data error-thrown &allow-other-keys)
+                   (lambda (&key data error-thrown &allow-other-keys)
                      (message "Got error: %S %S"
                               error-thrown
                               (cdr (assq 'error data)))))
-           :success (lambda (&rest _)
-                      (code-stats-reset-xps))))
+           :success (cl-function
+                     (lambda (&key data &allow-other-keys)
+                       (message "%s" (cdr (assq 'ok data)))
+                       (code-stats-reset-xps)))))
 
 (provide 'code-stats)
 ;;; code-stats.el ends here
