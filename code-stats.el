@@ -3,6 +3,7 @@
 ;; Copyright (C) 2018  Xu Chunyang
 
 ;; Author: Xu Chunyang <mail@xuchunyang.me>
+;; Package-Requires: ((emacs "25") (request "0.3.0"))
 ;; Created: 2018-07-13T13:29:18+08:00
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -24,13 +25,16 @@
 
 ;;; Code:
 
+(require 'cl-lib)
+(require 'request)
+
 (defvar code-stats-token nil)
 
 (defvar-local code-stats-xp 0
   "Experience point for the current buffer.")
 
 (defun code-stats-after-change (_beg _end _len)
-  (setq code-stats-xp (1+ code-stats-xp)))
+  (cl-incf code-stats-xp))
 
 (define-minor-mode code-stats-mode
   "Code Stats Minor Mode."
@@ -39,6 +43,46 @@
   (if code-stats-mode
       (add-hook 'after-change-functions #'code-stats-after-change :append :local)
     (remove-hook 'after-change-functions #'code-stats-after-change :local)))
+
+;; (("Emacs-Lisp" . 429) ("Racket" . 18))
+(defun code-stats-collect-xps ()
+  (let (xps)
+    (dolist (buf (buffer-list))
+      (with-current-buffer buf
+        (when code-stats-mode
+          (if (assoc mode-name xps)
+              (cl-incf (cdr (assoc mode-name xps)) code-stats-xp)
+            (push (cons mode-name code-stats-xp) xps)))))
+    xps))
+
+(defun code-stats-reset-xps ()
+  (dolist (buf (buffer-list))
+    (with-current-buffer buf
+      (when code-stats-mode
+        (setq code-stats-xp 0)))))
+
+(defun code-stats-build-pulse (xps)
+  `((coded_at . ,(format-time-string "%FT%T%:z"))
+    (xps . [,@(cl-loop for (language . xp) in xps
+                       collect `((language . ,language)
+                                 (xp . ,xp)))])))
+
+(defun code-stats-send-pulse ()
+  (interactive)
+  (request "https://codestats.net/api/my/pulses"
+           :type "POST"
+           :headers `(("X-API-Token"  . ,code-stats-token)
+                      ("User-Agent"   . "code-stats-emacs")
+                      ("Content-Type" . "application/json"))
+           :data (json-encode (code-stats-build-pulse (code-stats-collect-xps)))
+           :parser #'json-read
+           :error (cl-function
+                   (lambda (&rest args &key data error-thrown &allow-other-keys)
+                     (message "Got error: %S %S"
+                              error-thrown
+                              (cdr (assq 'error data)))))
+           :success (lambda (&rest _)
+                      (code-stats-reset-xps))))
 
 (provide 'code-stats)
 ;;; code-stats.el ends here
