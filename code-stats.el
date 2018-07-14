@@ -41,6 +41,7 @@
 (defun code-stats-after-change (_beg _end _len)
   (cl-incf code-stats-xp))
 
+;;;###autoload
 (define-minor-mode code-stats-mode
   "Code Stats Minor Mode."
   :init-value nil
@@ -74,6 +75,7 @@
                            collect `((language . ,language)
                                      (xp . ,xp)))])))))
 
+;;;###autoload
 (defun code-stats-sync ()
   (let ((pulse (code-stats-build-pulse)))
     (when pulse
