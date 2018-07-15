@@ -76,10 +76,15 @@
                                      (xp . ,xp)))])))))
 
 ;;;###autoload
-(defun code-stats-sync ()
+(defun code-stats-sync (&optional wait)
+  "Sync with Code::Stats.
+If WAIT is non-nil, block Emacs until the process is done."
   (let ((pulse (code-stats-build-pulse)))
     (when pulse
+      (when wait
+        (message "[code-stats] Syncing Code::Stats..."))
       (request "https://codestats.net/api/my/pulses"
+               :sync wait
                :type "POST"
                :headers `(("X-API-Token"  . ,code-stats-token)
                           ("User-Agent"   . "code-stats-emacs")
@@ -93,7 +98,7 @@
                                   (cdr (assq 'error data)))))
                :success (cl-function
                          (lambda (&key data &allow-other-keys)
-                           (message "%s" (cdr (assq 'ok data)))
+                           ;; (message "%s" (cdr (assq 'ok data)))
                            (code-stats-reset-xps)))))))
 
 (provide 'code-stats)
