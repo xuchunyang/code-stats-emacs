@@ -123,7 +123,7 @@ If WAIT is non-nil, block Emacs until the process is done."
                                   error-thrown
                                   (cdr (assq 'error data)))))
                :success (cl-function
-                         (lambda (&key data &allow-other-keys)
+                         (lambda (&key _data &allow-other-keys)
                            ;; (message "%s" (cdr (assq 'ok data)))
                            (code-stats-reset-xps)))))))
 
