@@ -55,6 +55,7 @@
         ((eq major-mode 'mhtml-mode) "HTML")
         (t (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode)))))
 
+;; FIXME: If buffer gets killed, the XP will lost!
 ;; (("Emacs-Lisp" . 429) ("Racket" . 18))
 (defun code-stats-collect-xps ()
   (let (xps)
