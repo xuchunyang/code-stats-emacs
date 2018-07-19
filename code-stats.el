@@ -36,10 +36,19 @@
 (defvar code-stats-token nil)
 
 (defvar-local code-stats-xp 0
-  "Experience point for the current buffer.")
+  "XP for the current buffer.")
+
+(defvar code-stats-xp-cache nil
+  "XP for the killed buffers.")
 
 (defun code-stats-after-change (_beg _end _len)
   (cl-incf code-stats-xp))
+
+(defun code-stats-cache-xp ()
+  (when (> code-stats-xp 0)
+    (push (cons (code-stats-get-language)
+                code-stats-xp)
+          code-stats-xp-cache)))
 
 ;;;###autoload
 (define-minor-mode code-stats-mode
@@ -47,15 +56,17 @@
   :init-value nil
   :lighter " Code::Stats"
   (if code-stats-mode
-      (add-hook 'after-change-functions #'code-stats-after-change :append :local)
-    (remove-hook 'after-change-functions #'code-stats-after-change :local)))
+      (progn
+        (add-hook 'after-change-functions #'code-stats-after-change :append :local)
+        (add-hook 'kill-buffer-hook #'code-stats-cache-xp nil :local))
+    (remove-hook 'after-change-functions #'code-stats-after-change :local)
+    (remove-hook 'kill-buffer-hook #'code-stats-cache-xp :local)))
 
 (defun code-stats-get-language ()
   (cond ((stringp mode-name) mode-name)
         ((eq major-mode 'mhtml-mode) "HTML")
         (t (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode)))))
 
-;; FIXME: If buffer gets killed, the XP will lost!
 ;; (("Emacs-Lisp" . 429) ("Racket" . 18))
 (defun code-stats-collect-xps ()
   (let (xps)
@@ -63,16 +74,15 @@
       (with-current-buffer buf
         (when (and code-stats-mode (> code-stats-xp 0))
           (let ((language (code-stats-get-language)))
-            (if (assoc language xps)
-                (cl-incf (cdr (assoc language xps)) code-stats-xp)
-              (push (cons language code-stats-xp) xps))))))
-    xps))
+            (push (cons language code-stats-xp) xps)))))
+    (code-stats-xps-merge (append code-stats-xp-cache xps))))
 
 (defun code-stats-reset-xps ()
   (dolist (buf (buffer-list))
     (with-current-buffer buf
       (when code-stats-mode
-        (setq code-stats-xp 0)))))
+        (setq code-stats-xp 0))))
+  (setq code-stats-xp-cache nil))
 
 (defun code-stats-build-pulse ()
   (let ((xps (code-stats-collect-xps)))
