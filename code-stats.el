@@ -50,15 +50,21 @@
       (add-hook 'after-change-functions #'code-stats-after-change :append :local)
     (remove-hook 'after-change-functions #'code-stats-after-change :local)))
 
+(defun code-stats-get-language ()
+  (cond ((stringp mode-name) mode-name)
+        ((eq major-mode 'mhtml-mode) "HTML")
+        (t (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode)))))
+
 ;; (("Emacs-Lisp" . 429) ("Racket" . 18))
 (defun code-stats-collect-xps ()
   (let (xps)
     (dolist (buf (buffer-list))
       (with-current-buffer buf
         (when (and code-stats-mode (> code-stats-xp 0))
-          (if (assoc mode-name xps)
-              (cl-incf (cdr (assoc mode-name xps)) code-stats-xp)
-            (push (cons mode-name code-stats-xp) xps)))))
+          (let ((language (code-stats-get-language)))
+            (if (assoc language xps)
+                (cl-incf (cdr (assoc language xps)) code-stats-xp)
+              (push (cons language code-stats-xp) xps))))))
     xps))
 
 (defun code-stats-reset-xps ()
