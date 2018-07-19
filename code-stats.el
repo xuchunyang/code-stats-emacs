@@ -67,6 +67,15 @@
         ((eq major-mode 'mhtml-mode) "HTML")
         (t (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode)))))
 
+(defun code-stats-xps-merge (xps)
+  (cl-loop for (language . xp) in xps
+           with new-xps = '()
+           if (assoc language new-xps)
+           do (cl-incf (cdr (assoc language new-xps)) xp)
+           else
+           do (push (cons language xp) new-xps)
+           finally return (sort new-xps (lambda (a b) (string< (car a) (car b))))))
+
 ;; (("Emacs-Lisp" . 429) ("Racket" . 18))
 (defun code-stats-collect-xps ()
   (let (xps)
