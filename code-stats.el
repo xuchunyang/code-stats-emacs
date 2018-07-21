@@ -41,6 +41,7 @@
 (defvar code-stats-xp-cache nil
   "XP for the killed buffers.")
 
+;; XXX: Bulk edits such as C-M-% and undo/redo should count only once
 (defun code-stats-after-change (_beg _end _len)
   (cl-incf code-stats-xp))
 
