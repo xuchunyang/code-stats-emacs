@@ -33,6 +33,9 @@
 (require 'request)
 (require 'json)
 
+;; Set it to https://beta.codestats.net for testing
+(defvar code-stats-url "https://codestats.net")
+
 (defvar code-stats-token nil)
 
 (defvar-local code-stats-xp 0
@@ -110,7 +113,7 @@ If WAIT is non-nil, block Emacs until the process is done."
     (when pulse
       (when wait
         (message "[code-stats] Syncing Code::Stats..."))
-      (request "https://codestats.net/api/my/pulses"
+      (request (concat code-stats-url "/api/my/pulses")
                :sync wait
                :type "POST"
                :headers `(("X-API-Token"  . ,code-stats-token)
