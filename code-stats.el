@@ -101,6 +101,7 @@
                            collect `((language . ,language)
                                      (xp . ,xp)))])))))
 
+;; TODO: Log sent pulse
 ;;;###autoload
 (defun code-stats-sync (&optional wait)
   "Sync with Code::Stats.
