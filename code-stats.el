@@ -41,8 +41,7 @@
 (defvar code-stats-xp-cache nil
   "XP for the killed buffers.")
 
-;; XXX: Bulk edits such as C-M-% and undo/redo should count only once
-(defun code-stats-after-change (_beg _end _len)
+(defun code-stats-post-self-insert ()
   (cl-incf code-stats-xp))
 
 (defun code-stats-cache-xp ()
@@ -58,9 +57,9 @@
   :lighter " Code::Stats"
   (if code-stats-mode
       (progn
-        (add-hook 'after-change-functions #'code-stats-after-change :append :local)
+        (add-hook 'post-self-insert-hook #'code-stats-post-self-insert :append :local)
         (add-hook 'kill-buffer-hook #'code-stats-cache-xp nil :local))
-    (remove-hook 'after-change-functions #'code-stats-after-change :local)
+    (remove-hook 'post-self-insert-hook #'code-stats-post-self-insert :local)
     (remove-hook 'kill-buffer-hook #'code-stats-cache-xp :local)))
 
 (defun code-stats-get-language ()
