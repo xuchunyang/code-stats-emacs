@@ -65,10 +65,20 @@
     (remove-hook 'post-self-insert-hook #'code-stats-post-self-insert :local)
     (remove-hook 'kill-buffer-hook #'code-stats-cache-xp :local)))
 
+(defvar code-stats-languages
+  '((emacs-lisp-mode . "Emacs Lisp")
+    (lisp-interaction-mode . "Emacs Lisp")
+    (html-mode . "HTML")
+    (mhtml-mode . "HTML")
+    (js2-mode . "JavaScript")
+    (sh-mode . "Shell"))
+  "Alist of mapping `major-mode' to language name.")
+
 (defun code-stats-get-language ()
-  (cond ((stringp mode-name) mode-name)
-        ((eq major-mode 'mhtml-mode) "HTML")
-        (t (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode)))))
+  (or (alist-get major-mode code-stats-languages)
+      (if (stringp mode-name)
+          mode-name
+        (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode)))))
 
 (defun code-stats-xps-merge (xps)
   (cl-loop for (language . xp) in xps
