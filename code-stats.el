@@ -752,7 +752,7 @@
   (push pair code-stats-languages-by-extension))
 
 (defun code-stats-get-language ()
-  (or (print (cdr (assoc (file-name-extension buffer-file-name) code-stats-languages-by-extension #'string-equal)))
+  (or (cdr (assoc (file-name-extension buffer-file-name) code-stats-languages-by-extension #'string-equal))
       (alist-get major-mode code-stats-languages-by-mode)
       (if (stringp mode-name)
           mode-name
