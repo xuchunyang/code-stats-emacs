@@ -788,7 +788,7 @@
 (defun code-stats-build-pulse ()
   (let ((xps (code-stats-collect-xps)))
     (when xps
-      `((coded_at . ,(format-time-string "%FT%T%:z"))
+      `((coded_at . ,(format-time-string "%FT%T%z"))
         (xps . [,@(cl-loop for (language . xp) in xps
                            collect `((language . ,language)
                                      (xp . ,xp)))])))))
