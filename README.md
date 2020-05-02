@@ -9,3 +9,8 @@
 (run-with-idle-timer 30 t #'code-stats-sync)
 (add-hook 'kill-emacs-hook (lambda () (code-stats-sync :wait)))
 ```
+
+## Requires
+
+- Emacs 25.1
+- Package [request](https://github.com/tkf/emacs-request)
