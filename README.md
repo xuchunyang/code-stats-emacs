@@ -16,14 +16,14 @@ Sample configuration:
   the token privately, an idea is using auth-source, put your API token to
   `~/.authinfo[.gpg]`, e.g.,
 
-        machine codestats.net password your-token
+      machine codestats.net password your-token
 
   then retrieve it:
 
-        ```emacs-lisp
-        (setq code-stats-token
-          (auth-source-pick-first-password :host "codestats.net"))
-        ```
+  ```emacs-lisp
+  (setq code-stats-token
+    (auth-source-pick-first-password :host "codestats.net"))
+  ```
 
 - The buffer-local minor mode `code-stats-token` tracks codestats for current
   buffer.
