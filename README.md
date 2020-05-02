@@ -1,4 +1,5 @@
 # [Code::Stats](https://codestats.net/) plugin for Emacs
+[![Melpa](https://melpa.org/packages/code-stats-badge.svg)](https://melpa.org/#/code-stats)
 
 ## Setup
 
