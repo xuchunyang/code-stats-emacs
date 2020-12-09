@@ -66,8 +66,9 @@
     (remove-hook 'kill-buffer-hook #'code-stats-cache-xp :local)))
 
 (defvar code-stats-languages-by-mode
-  '((c-mode . "C")
-    (c++-mode . "C++")
+  '((c++-mode . "C++")
+    (c-mode . "C")
+    (cperl-mode . "Perl")
     (emacs-lisp-mode . "Emacs Lisp")
     (lisp-interaction-mode . "Emacs Lisp")
     (html-mode . "HTML")
